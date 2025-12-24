@@ -26,17 +26,17 @@
 <div class="container">
     <h1>Conferidor Bolão Vamos Ganhar!</h1>
     
-    <p style="font-size: 0.95em; color: #333; font-weight: 500;">
-        Os jogos foram carregados do arquivo <strong>Lista de apostas Mega Virada 2955 de 24/12/2025.txt</strong>
+    <p style="font-size: 1em; color: #333; font-weight: 500; background: #fff3cd; padding: 10px; border-radius: 8px; display: inline-block;">
+        Os jogos foram carregados do arquivo <strong>Lista de apostas Mega Virada 2955 de 24/12/2025</strong>
     </p>
 
     <div class="draw-inputs">
-        <input type="number" id="n1" min="1" max="60"> 
-        <input type="number" id="n2" min="1" max="60"> 
-        <input type="number" id="n3" min="1" max="60">
-        <input type="number" id="n4" min="1" max="60"> 
-        <input type="number" id="n5" min="1" max="60"> 
-        <input type="number" id="n6" min="1" max="60">
+        <input type="number" id="n1" min="1" max="60" placeholder="00"> 
+        <input type="number" id="n2" min="1" max="60" placeholder="00"> 
+        <input type="number" id="n3" min="1" max="60" placeholder="00">
+        <input type="number" id="n4" min="1" max="60" placeholder="00"> 
+        <input type="number" id="n5" min="1" max="60" placeholder="00"> 
+        <input type="number" id="n6" min="1" max="60" placeholder="00">
     </div>
     
     <button onclick="conferirAutomatico()">CONFERIR ACERTOS AGORA</button>
@@ -60,20 +60,20 @@ async function conferirAutomatico() {
     if(sorteados.length < 6) { alert("Insira os 6 números sorteados!"); return; }
 
     try {
-        // AQUI ESTÁ O SEGREDO: O código busca o arquivo 'apostas.txt' que está no seu GitHub
+        // O código continua lendo o arquivo 'apostas.txt' internamente
         const response = await fetch('apostas.txt');
         
         if (!response.ok) {
-            throw new Error("Não encontrei o arquivo apostas.txt no seu GitHub.");
+            throw new Error("Não foi possível carregar a base de dados (apostas.txt não encontrado).");
         }
         
         const texto = await response.text();
 
-        // Regex para capturar o padrão do seu PDF
+        // Regex para capturar os jogos de 7 números do seu PDF
         const regex = /(\d{4})\)\s*([\d\s\n]+?)(?=\s*\d{4}\)|$)/g;
         let m;
         let counts = { 6: 0, 5: 0, 4: 0 };
-        let html = "<h3>🎯 Resultados Positivos:</h3>";
+        let html = "<h3>🎯 Detalhamento dos Acertos:</h3>";
         let encontrou = false;
 
         while ((m = regex.exec(texto)) !== null) {
@@ -100,7 +100,7 @@ async function conferirAutomatico() {
         document.getElementById('res6').innerText = counts[6];
         document.getElementById('res5').innerText = counts[5];
         document.getElementById('res4').innerText = counts[4];
-        document.getElementById('lista_premios').innerHTML = encontrou ? html : "<p>Nenhum acerto encontrado.</p>";
+        document.getElementById('lista_premios').innerHTML = encontrou ? html : "<p>Nenhum acerto de 4, 5 ou 6 números encontrado.</p>";
 
     } catch (err) {
         alert(err.message);
