@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conferidor Automático - Bolão Vamos Ganhar!</title>
+    <title>Conferidor Oficial - Mega Virada 2955</title>
     <style>
         :root { --primary: #006633; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; text-align: center; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 20px; shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .draw-inputs { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        input { width: 50px; height: 50px; text-align: center; font-size: 20px; border: 2px solid var(--primary); border-radius: 50%; }
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .draw-inputs { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        input { width: 50px; height: 50px; text-align: center; font-size: 20px; border: 2px solid var(--primary); border-radius: 50%; font-weight: bold; }
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .stats { display: flex; justify-content: space-around; margin: 20px 0; }
         .stat { padding: 15px; border-radius: 10px; color: white; flex: 1; margin: 5px; font-weight: bold; }
         .sena { background: #ffc107; color: black; }
@@ -23,20 +23,20 @@
 <body>
 
 <div class="container">
-    <h1>Conferidor Automático</h1>
-    <p>Os jogos serão carregados do arquivo <strong>apostas.txt</strong></p>
+    <h1>Conferidor Bolão Vamos Ganhar!</h1>
+    <p style="font-size: 0.9em; color: #555;">Os jogos foram carregados do arquivo <strong>Lista de apostas Mega Virada 2955 de 24/12/2025.txt</strong></p>
 
     <div class="draw-inputs">
         <input type="number" id="n1"> <input type="number" id="n2"> <input type="number" id="n3">
         <input type="number" id="n4"> <input type="number" id="n5"> <input type="number" id="n6">
     </div>
     
-    <button onclick="conferirAutomatico()">CONFERIR AGORA</button>
+    <button onclick="conferirAutomatico()">CONFERIR ACERTOS AGORA</button>
 
     <div class="stats">
-        <div class="stat sena">SENA: <span id="res6">0</span></div>
-        <div class="stat quina">QUINA: <span id="res5">0</span></div>
-        <div class="stat quadra">QUADRA: <span id="res4">0</span></div>
+        <div class="stat sena">SENA (6): <span id="res6">0</span></div>
+        <div class="stat quina">QUINA (5): <span id="res5">0</span></div>
+        <div class="stat quadra">QUADRA (4): <span id="res4">0</span></div>
     </div>
 
     <div id="lista_premios"></div>
@@ -49,17 +49,22 @@ async function conferirAutomatico() {
         const val = parseInt(document.getElementById('n'+i).value);
         if(!isNaN(val)) sorteados.push(val);
     }
-    if(sorteados.length < 6) { alert("Insira os 6 números sorteados"); return; }
+    if(sorteados.length < 6) { alert("Insira os 6 números sorteados!"); return; }
 
     try {
-        // Busca o arquivo txt que você subiu para o GitHub
-        const response = await fetch('apostas.txt');
+        // ATENÇÃO: O nome do arquivo no fetch deve ser idêntico ao arquivo que você subir no GitHub
+        const fileName = 'Lista de apostas Mega Virada 2955 de 24/12/2025.txt';
+        const response = await fetch(encodeURIComponent(fileName));
+        
+        if (!response.ok) throw new Error("Arquivo não encontrado");
+        
         const texto = await response.text();
 
         const regex = /(\d{4})\)\s*([\d\s\n]+?)(?=\s*\d{4}\)|$)/g;
         let m;
         let counts = { 6: 0, 5: 0, 4: 0 };
-        let html = "<h2>Apostas Premiadas:</h2>";
+        let html = "<h3>🎯 Apostas Premiadas:</h3>";
+        let encontrou = false;
 
         while ((m = regex.exec(texto)) !== null) {
             const id = m[1];
@@ -70,10 +75,11 @@ async function conferirAutomatico() {
                 const total = hits.length;
 
                 if (total >= 4) {
+                    encontrou = true;
                     counts[total >= 6 ? 6 : total]++;
                     html += `<div class="bet-card">
-                        <strong>Jogo ${id}:</strong> ${nums.map(n => sorteados.includes(n) ? `<span class="hit">${n}</span>` : n).join(' ')} 
-                        (Total: ${total})
+                        <strong>Jogo ${id}:</strong> ${nums.map(n => sorteados.includes(n) ? `<span class="hit">${n.toString().padStart(2, '0')}</span>` : n.toString().padStart(2, '0')).join(' ')} 
+                        <span style="float:right; color:var(--primary)"><b>${total} Acertos</b></span>
                     </div>`;
                 }
             }
@@ -82,10 +88,11 @@ async function conferirAutomatico() {
         document.getElementById('res6').innerText = counts[6];
         document.getElementById('res5').innerText = counts[5];
         document.getElementById('res4').innerText = counts[4];
-        document.getElementById('lista_premios').innerHTML = html;
+        document.getElementById('lista_premios').innerHTML = encontrou ? html : "<p>Nenhuma aposta premiada encontrada com estes números.</p>";
 
     } catch (err) {
-        alert("Erro ao carregar o arquivo apostas.txt. Verifique se ele está no GitHub.");
+        console.error(err);
+        alert("Erro ao ler o arquivo TXT. Verifique se o nome do arquivo no GitHub está exatamente como: Lista de apostas Mega Virada 2955 de 24/12/2025.txt");
     }
 }
 </script>
